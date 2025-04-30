@@ -1,3 +1,4 @@
+using WepApiProject.Extention;
 
 namespace WepApiProject
 {
@@ -9,6 +10,10 @@ namespace WepApiProject
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddControllers();
+
+            builder.Services.AddPostgreSqlServiceExtention(builder.Configuration);
+            builder.Services.AddPostgreSqlIdentityContext();
 
             // Add services to the container.
 
@@ -17,6 +22,7 @@ namespace WepApiProject
             builder.Services.AddOpenApi();
 
             var app = builder.Build();
+            app.MapControllers();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
