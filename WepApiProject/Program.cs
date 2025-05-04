@@ -33,13 +33,20 @@ namespace WepApiProject
 
             app.UseHttpsRedirection();
 
+            RunMethod(app);
+
             app.UseAuthorization();
 
             app.MapGet("/hello", () => "hello api");
 
-            app.MapControllers();
+            app.MapControllers();            
 
             app.Run();
+        }
+
+        public async static Task RunMethod(WebApplication app)
+        {
+            await app.Services.InitialiseRoleAsync();
         }
     }
 }
