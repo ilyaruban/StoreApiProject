@@ -16,6 +16,8 @@ namespace WepApiProject
             builder.Services.AddPostgreSqlIdentityContext();
             builder.Services.AddConfigureIdentityOptions();
             builder.Services.AddJwtTokenGenerator();
+            builder.Services.AddAuthenticationConfig(builder.Configuration);
+            builder.Services.AddCors();
 
             // Add services to the container.
 
@@ -34,6 +36,8 @@ namespace WepApiProject
             }
 
             app.UseHttpsRedirection();
+            app.UseCors(options=>options.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin().WithExposedHeaders("*"));
+            app.UseAuthentication();
 
             RunMethod(app);
 
