@@ -19,6 +19,7 @@ namespace WepApiProject
             builder.Services.AddAuthenticationConfig(builder.Configuration);
             builder.Services.AddCors();
             builder.Services.AddShoppingCartService();
+            builder.Services.AddOrderService();
 
             // Add services to the container.
 
