@@ -14,6 +14,8 @@ namespace WepApiProject
 
             builder.Services.AddPostgreSqlServiceExtention(builder.Configuration);
             builder.Services.AddPostgreSqlIdentityContext();
+            builder.Services.AddConfigureIdentityOptions();
+            builder.Services.AddJwtTokenGenerator();
 
             // Add services to the container.
 
