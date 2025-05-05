@@ -6,6 +6,7 @@ using WepApiProject.Common;
 using WepApiProject.DataContext;
 using WepApiProject.Model;
 using WepApiProject.ModelDto;
+using WepApiProject.Service;
 
 namespace WepApiProject.Controllers
 {
@@ -13,12 +14,15 @@ namespace WepApiProject.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly JwtTokenGenerator jwtTokenGenerator;
 
         public AuthController(AppDbContext context, UserManager<AppUser> userManager,
-                              RoleManager<IdentityRole> roleManager) : base(context)
+                              RoleManager<IdentityRole> roleManager,
+                              JwtTokenGenerator jwtTokenGenerator) : base(context)
         {
             this._userManager = userManager;
             this._roleManager = roleManager;
+            this.jwtTokenGenerator = jwtTokenGenerator;
         }
 
         [HttpPost]
@@ -74,9 +78,40 @@ namespace WepApiProject.Controllers
             await _userManager.AddToRoleAsync(newAppUser, newRoleAppUser);
 
             return Ok(new ResponceServer()
-            {                
+            {
                 StatusCode = System.Net.HttpStatusCode.OK,
                 Result = "Регистрация завершена"
+            });
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<ResponceServer>> Login(
+            [FromBody] LoginRequestDto loginRequestDto)
+        {
+            var userFromDb = await Context.AppUsers.FirstOrDefaultAsync(p => p.Email.ToLower() ==
+            loginRequestDto.Email.ToLower());
+
+            if (userFromDb == null || !await _userManager.CheckPasswordAsync(userFromDb, loginRequestDto.Password))
+            {
+                return BadRequest(new ResponceServer
+                {
+                    IsSuccess = false,
+                    StatusCode = System.Net.HttpStatusCode.BadRequest,
+                    ErrorMessages = { "Такого пользователя нет" }
+                });
+            }
+
+            var roles = await _userManager.GetRolesAsync(userFromDb);
+            var token = jwtTokenGenerator.GenerateJwtToken(userFromDb, roles);
+
+            return Ok(new ResponceServer()
+            {
+                StatusCode = System.Net.HttpStatusCode.OK,
+                Result = new LoginResponceDto
+                {
+                    Email = userFromDb.Email,
+                    Token = token,
+                }
             });
         }
     }
